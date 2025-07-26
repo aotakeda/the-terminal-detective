@@ -4,6 +4,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://typescriptlang.org/)
 [![Bun](https://img.shields.io/badge/Bun-000000?logo=bun&logoColor=white)](https://bun.sh/)
 
+![The Terminal Detective](./logo-the-terminal-detective.png)
 > **A terminal-based detective game that teaches essential command-line skills through missions.**
 
 Learn real-world command-line skills by navigating file systems, analyzing evidence, hunting for clues, and solving puzzles.
