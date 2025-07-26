@@ -36,6 +36,11 @@ export const MissionGame: React.FC<MissionGameProps> = ({
 		null,
 	);
 	const [isStreaming, setIsStreaming] = useState(false);
+	const [streamingCommand, setStreamingCommand] = useState<{
+		command: string;
+		args: string;
+		outputString: string;
+	} | null>(null);
 
 	const [currentDirectory, setCurrentDirectory] = useState("/");
 	const [objectives, setObjectives] = useState<MissionObjective[]>([
@@ -48,6 +53,7 @@ export const MissionGame: React.FC<MissionGameProps> = ({
 		setOutput([]);
 		setStreamingContent(null);
 		setIsStreaming(false);
+		setStreamingCommand(null);
 		setCurrentDirectory("/");
 		setObjectives([...mission.objectives]);
 		setCompletedObjectives([]);
@@ -78,6 +84,7 @@ export const MissionGame: React.FC<MissionGameProps> = ({
 	const getLineStyle = (line: string) => {
 		let color = "white";
 		let bold = false;
+		let strikethrough = false;
 
 		if (line.startsWith("$")) {
 			color = "green";
@@ -85,6 +92,10 @@ export const MissionGame: React.FC<MissionGameProps> = ({
 		} else if (line.includes("COMPLETED")) {
 			color = "green";
 			bold = true;
+			strikethrough = true;
+		} else if (line.includes("PENDING")) {
+			color = "white";
+			bold = false;
 		} else if (line === "Mission Complete!") {
 			color = "green";
 			bold = true;
@@ -94,7 +105,7 @@ export const MissionGame: React.FC<MissionGameProps> = ({
 			color = "cyan";
 		}
 
-		return { color, bold };
+		return { color, bold, strikethrough };
 	};
 
 	const commandRegistry = useMemo(
@@ -129,18 +140,29 @@ export const MissionGame: React.FC<MissionGameProps> = ({
 						hasUpdates = true;
 						setCompletedObjectives((prev) => [...prev, objective.id]);
 
-						const completionMessage = [
-							"",
-							`[✓] OBJECTIVE COMPLETED: ${objective.description}`,
-							"",
-						];
-						setOutput((prev) => [...prev, ...completionMessage]);
-
 						return { ...objective, completed: true };
 					}
 
 					return objective;
 				});
+
+				if (hasUpdates) {
+					const objectiveStatusMessage = [
+						"",
+						"MISSION OBJECTIVES STATUS:",
+						"═".repeat(40),
+					];
+					
+					updatedObjectives.forEach((obj, index) => {
+						const status = obj.completed ? "✓" : " ";
+						const color = obj.completed ? "COMPLETED" : "PENDING";
+						objectiveStatusMessage.push(`[${status}] ${index + 1}. ${obj.description} - ${color}`);
+					});
+					
+					objectiveStatusMessage.push("═".repeat(40), "");
+					
+					setOutput((prev) => [...prev, ...objectiveStatusMessage]);
+				}
 
 				return hasUpdates ? updatedObjectives : currentObjectives;
 			});
@@ -154,8 +176,19 @@ export const MissionGame: React.FC<MissionGameProps> = ({
 			setIsStreaming(false);
 			setStreamingContent(null);
 			setOutput((prev) => [...prev, ...contentToAdd]);
+			
+			if (streamingCommand) {
+				setTimeout(() => {
+					checkObjectiveCompletion(
+						streamingCommand.command,
+						streamingCommand.args,
+						streamingCommand.outputString
+					);
+				}, 100);
+				setStreamingCommand(null);
+			}
 		}
-	}, [streamingContent, isStreaming]);
+	}, [streamingContent, isStreaming, streamingCommand, checkObjectiveCompletion]);
 
 	const handleCommand = useCallback(
 		(command: string) => {
@@ -172,6 +205,17 @@ export const MissionGame: React.FC<MissionGameProps> = ({
 					setIsStreaming(false);
 					setOutput((prev) => [...prev, ...streamingContent]);
 					setStreamingContent(null);
+					
+					if (streamingCommand) {
+						setTimeout(() => {
+							checkObjectiveCompletion(
+								streamingCommand.command,
+								streamingCommand.args,
+								streamingCommand.outputString
+							);
+						}, 100);
+						setStreamingCommand(null);
+					}
 				}
 				return;
 			}
@@ -216,20 +260,18 @@ export const MissionGame: React.FC<MissionGameProps> = ({
 			);
 			const newLines = [...expandedOutput, ""];
 
+			const outputString = result.output.join(" ");
+			
 			if (shouldAnimateOutput(cmd)) {
 				setIsStreaming(true);
 				setStreamingContent([...newLines]);
+				setStreamingCommand({ command: cmd, args, outputString });
 			} else {
 				setOutput((prev) => [...prev, ...newLines]);
-			}
-
-			const outputString = result.output.join(" ");
-			setTimeout(
-				() => {
+				setTimeout(() => {
 					checkObjectiveCompletion(cmd, args, outputString);
-				},
-				shouldAnimateOutput(cmd) ? 1000 : 100,
-			);
+				}, 100);
+			}
 		},
 		[
 			mission.allowedCommands,
@@ -375,13 +417,13 @@ export const MissionGame: React.FC<MissionGameProps> = ({
 				</Box>
 
 				{output.map((line, index) => {
-					const { color, bold } = getLineStyle(line);
+					const { color, bold, strikethrough } = getLineStyle(line);
 					return (
 						<Box
 							key={`static-output-${line.slice(0, 30)}-${index}`}
 							marginBottom={1}
 						>
-							<Text color={color} bold={bold}>
+							<Text color={color} bold={bold} strikethrough={strikethrough}>
 								{line}
 							</Text>
 						</Box>
@@ -391,7 +433,7 @@ export const MissionGame: React.FC<MissionGameProps> = ({
 				{streamingContent && isStreaming && (
 					<TerminalStream
 						lines={streamingContent}
-						speed={25}
+						speed={60}
 						onComplete={handleStreamComplete}
 					/>
 				)}

@@ -15,7 +15,7 @@ export const TerminalStream: React.FC<TerminalStreamProps> = ({
 	speed = 25,
 	onComplete,
 }) => {
-	const [displayText, setDisplayText] = useState<string>("");
+	const [displayedLines, setDisplayedLines] = useState<string[]>([]);
 	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 	const onCompleteRef = useRef(onComplete);
 
@@ -29,35 +29,34 @@ export const TerminalStream: React.FC<TerminalStreamProps> = ({
 			timeoutRef.current = null;
 		}
 
-		setDisplayText("");
+		setDisplayedLines([]);
 
 		if (lines.length === 0) {
 			onCompleteRef.current?.();
 			return;
 		}
 
-		const fullText = lines.join("\n");
-		let currentIndex = 0;
-		const charsPerUpdate = Math.max(1, Math.floor(speed / 10));
-		const delay = (1000 / speed) * charsPerUpdate;
+		let currentLineIndex = 0;
+		const delay = 600;
 
-		const typeChars = () => {
-			if (currentIndex >= fullText.length) {
+		const showNextLine = () => {
+			if (currentLineIndex >= lines.length) {
 				onCompleteRef.current?.();
 				return;
 			}
 
-			const nextIndex = Math.min(
-				currentIndex + charsPerUpdate,
-				fullText.length,
-			);
-			setDisplayText(fullText.substring(0, nextIndex));
-			currentIndex = nextIndex;
+			const currentLine = lines[currentLineIndex];
+			setDisplayedLines(prev => [...prev, currentLine || ""]);
+			currentLineIndex++;
 
-			timeoutRef.current = setTimeout(typeChars, delay);
+			if (currentLineIndex < lines.length) {
+				timeoutRef.current = setTimeout(showNextLine, delay);
+			} else {
+				onCompleteRef.current?.();
+			}
 		};
 
-		timeoutRef.current = setTimeout(typeChars, 50);
+		timeoutRef.current = setTimeout(showNextLine, 50);
 
 		return () => {
 			if (timeoutRef.current) {
@@ -68,8 +67,10 @@ export const TerminalStream: React.FC<TerminalStreamProps> = ({
 	}, [lines, speed]);
 
 	return (
-		<Box marginBottom={1}>
-			<Text color="white">{displayText}</Text>
+		<Box marginBottom={1} flexDirection="column">
+			{displayedLines.map((line, index) => (
+				<Text key={index} color="white">{line || " "}</Text>
+			))}
 		</Box>
 	);
 };

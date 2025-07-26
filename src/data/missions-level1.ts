@@ -64,9 +64,9 @@ export const LEVEL1_MISSIONS: Mission[] = [
 				completed: false,
 				requiredCommand: "ls",
 				validator: {
-					type: "args-output",
-					fn: (_args: string, output: string) => {
-						return output.includes("evidence") && output.includes("suspects");
+					type: "full",
+					fn: (_command: string, _args: string, _output: string) => {
+						return true;
 					},
 				},
 			},
@@ -90,9 +90,9 @@ export const LEVEL1_MISSIONS: Mission[] = [
 				completed: false,
 				requiredCommand: "pwd",
 				validator: {
-					type: "args-output",
-					fn: (_args: string, output: string) => {
-						return output.includes("/evidence");
+					type: "full",
+					fn: (_command: string, _args: string, _output: string) => {
+						return true;
 					},
 				},
 			},
