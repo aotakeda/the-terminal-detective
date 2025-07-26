@@ -26,6 +26,8 @@
 	"dependencies": {
 		"@types/react": "^19.1.8",
 		"ink": "^6.0.1",
+		"ink-big-text": "^2.0.0",
+		"ink-gradient": "^3.0.0",
 		"react": "^19.1.0"
 	}
 }

@@ -13,7 +13,7 @@ export const useMissionSelectCommands = ({
 	completedMissions,
 }: UseMissionSelectCommandsProps) => {
 	const [output, setOutput] = useState<string[]>([
-		"Welcome to Detective Terminal",
+		"Welcome to The Terminal Detective",
 		"=".repeat(40),
 		"",
 		"Available Missions:",
@@ -114,7 +114,7 @@ export const useMissionSelectCommands = ({
 				case "help": {
 					setOutput((prev) => [
 						...prev,
-						"Detective Terminal Commands:",
+						"The Terminal Detective Commands:",
 						"",
 						"select <mission_id>  - Start a mission",
 						"list                - Show available missions",

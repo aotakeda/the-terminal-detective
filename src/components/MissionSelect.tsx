@@ -1,4 +1,6 @@
 import { Box, Text } from "ink";
+import BigText from "ink-big-text";
+import Gradient from "ink-gradient";
 import type React from "react";
 import { useState } from "react";
 import type { Mission } from "../types/mission";
@@ -275,28 +277,11 @@ export const MissionSelect: React.FC<MissionSelectProps> = ({
 
 	return (
 		<Box flexDirection="column" height="100%">
+			<Gradient name="fruit">
+				<BigText text="The Terminal" align="center" />
+				<BigText text="Detective" align="center" />
+			</Gradient>
 			<Box flexDirection="column" alignItems="center" marginBottom={1}>
-				<Box flexDirection="column" alignItems="center">
-					{[
-						"+-----------------------------------------------------------------+",
-						"|    _____ _            _____                   _             _   |",
-						"|   |_   _| |__   ___  |_   _|__ _ __ _ __ ___ (_)_ __   __ _| |  |",
-						"|     | | | '_ \\ / _ \\   | |/ _ \\ '__| '_ ` _ \\| | '_ \\ / _` | |  |",
-						"|     | | | | | |  __/   | |  __/ |  | | | | | | | | | | (_| | |  |",
-						"|    _|_| |_| |_|\\___|   |_|\\___|_|  |_| |_| |_|_|_| |_|\\__,_|_|  |",
-						"|   |  _ \\  ___| |_ ___  ___| |_(_)_   _____                      |",
-						"|   | | | |/ _ \\ __/ _ \\/ __| __| \\ \\ / / _ \\                     |",
-						"|   | |_| |  __/ ||  __/ (__| |_| |\\ V /  __/                     |",
-						"|   |____/ \\___|\\_\\____|\\___|\\__|_| \\_/ \\___|                     |",
-						"|                                                                 |",
-						"+-----------------------------------------------------------------+",
-					].map((line, index) => (
-						// biome-ignore lint/suspicious/noArrayIndexKey: Static ASCII art, order never changes
-						<Text key={`ascii-art-${index}`} color="cyan" bold>
-							{line}
-						</Text>
-					))}
-				</Box>
 				<Box marginTop={1} alignItems="center">
 					<Text color="yellow" bold>
 						Mission Selection

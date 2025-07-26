@@ -120,7 +120,7 @@ export const LEVEL1_MISSIONS: Mission[] = [
 Case #2024-001: Missing Financial Records
 
 Date: January 15, 2024
-Investigator: Detective Terminal
+Investigator: The Terminal Detective
 
 SUMMARY:
 Three critical financial files have been reported missing:
@@ -1299,7 +1299,7 @@ I immediately alerted my manager and began collecting logs.
 We have complete network traces of the entire incident."
 
 Witness Signature: [Jennifer Martinez]
-Investigating Officer: Detective Terminal`,
+Investigating Officer: The Terminal Detective`,
 			},
 			case_files: {
 				"investigation_checklist.txt": {
