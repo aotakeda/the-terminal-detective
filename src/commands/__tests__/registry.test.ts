@@ -116,7 +116,7 @@ describe("Command Registry", () => {
 			expect("grep" in filteredRegistry).toBe(false);
 		});
 
-		it("should include help command even if not explicitly allowed", () => {
+		it("should include help and hint commands even if not explicitly allowed", () => {
 			const baseRegistry = createBaseCommandRegistry(["ls"]);
 			const allowedCommands = ["ls"];
 			const filteredRegistry = filterCommandRegistry(
@@ -125,14 +125,15 @@ describe("Command Registry", () => {
 			);
 
 			expect("ls" in filteredRegistry).toBe(true);
-			expect("help" in filteredRegistry).toBe(false);
+			expect("help" in filteredRegistry).toBe(true);
+			expect("hint" in filteredRegistry).toBe(true);
 		});
 
-		it("should handle empty allowed commands", () => {
+		it("should handle empty allowed commands but still include hint and help", () => {
 			const baseRegistry = createBaseCommandRegistry(["ls", "pwd"]);
 			const filteredRegistry = filterCommandRegistry(baseRegistry, []);
 
-			expect(Object.keys(filteredRegistry)).toEqual([]);
+			expect(Object.keys(filteredRegistry).sort()).toEqual(["help", "hint"]);
 		});
 	});
 });

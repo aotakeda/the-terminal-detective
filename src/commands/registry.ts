@@ -6,6 +6,7 @@ import {
 	findCommand,
 	grepCommand,
 	headCommand,
+	hintCommand,
 	lsCommand,
 	pwdCommand,
 	sortCommand,
@@ -27,6 +28,7 @@ const createHelpOutput = (availableCommands: string[]): string[] => [
 	"",
 	"Game Commands:",
 	"  objectives   - Show current mission objectives",
+	"  hint         - Show hint for current objective",
 	"  help         - Show this help menu",
 	"  exit         - Return to mission selection",
 	"",
@@ -45,6 +47,7 @@ const commandDescriptions: Record<string, string> = {
 	sort: "Sort lines in file",
 	uniq: "Remove duplicate lines",
 	wc: "Count lines, words, characters",
+	hint: "Show hint for current objective",
 	help: "Show this help message",
 };
 
@@ -103,6 +106,10 @@ export const createBaseCommandRegistry = (
 		completion: fileCompletion,
 		description: commandDescriptions.wc || "Count lines, words, characters",
 	},
+	hint: {
+		handler: hintCommand,
+		description: commandDescriptions.hint || "Show hint for current objective",
+	},
 	help: {
 		handler: (_args, _state) => ({ output: createHelpOutput(allowedCommands) }),
 		description: commandDescriptions.help || "Show this help message",
@@ -112,10 +119,14 @@ export const createBaseCommandRegistry = (
 export const filterCommandRegistry = (
 	registry: CommandRegistry,
 	allowedCommands: string[],
-): CommandRegistry =>
-	Object.fromEntries(
-		Object.entries(registry).filter(([cmd]) => allowedCommands.includes(cmd)),
+): CommandRegistry => {
+	const alwaysAllowed = ["hint", "help"];
+	const commandsToInclude = [...allowedCommands, ...alwaysAllowed];
+
+	return Object.fromEntries(
+		Object.entries(registry).filter(([cmd]) => commandsToInclude.includes(cmd)),
 	);
+};
 
 export const executeCommand = (
 	command: string,

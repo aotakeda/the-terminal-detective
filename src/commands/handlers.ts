@@ -262,3 +262,36 @@ export const fileCompletion: CompletionHandler = (input, state) => {
 
 	return filterByPrefix(items, currentArg);
 };
+
+export const hintCommand: CommandHandler = (_args, state) => {
+	const incompleteObjectives = state.objectives.filter((obj) => !obj.completed);
+
+	if (incompleteObjectives.length === 0) {
+		return {
+			output: ["All objectives completed! Great work, Detective."],
+		};
+	}
+
+	const currentObjective = incompleteObjectives[0];
+
+	if (!currentObjective) {
+		return { output: ["No incomplete objectives found."] };
+	}
+
+	const output = [
+		"HINT:",
+		"",
+		`Objective: ${currentObjective.description}`,
+		"",
+	];
+
+	if (currentObjective.hint) {
+		output.push(`${currentObjective.hint}`);
+	} else {
+		output.push("No specific hint available for this objective.");
+	}
+
+	output.push("");
+
+	return { output };
+};

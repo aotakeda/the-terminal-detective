@@ -60,7 +60,7 @@ export const LEVEL1_MISSIONS: Mission[] = [
 			{
 				id: "list_contents",
 				description: "List the contents of the current directory",
-				hint: 'You can use "ls" to see what files and folders are available',
+				hint: 'Think about what command shows directory contents. It starts with "l" and ends with "s".',
 				completed: false,
 				requiredCommand: "ls",
 				validator: {
@@ -73,7 +73,7 @@ export const LEVEL1_MISSIONS: Mission[] = [
 			{
 				id: "navigate_evidence",
 				description: "Navigate into the evidence directory",
-				hint: 'You can use "cd" to change into the evidence folder',
+				hint: 'To navigate into a folder, use the "change directory" command followed by the folder name.',
 				completed: false,
 				requiredCommand: "cd",
 				validator: {
@@ -86,7 +86,7 @@ export const LEVEL1_MISSIONS: Mission[] = [
 			{
 				id: "check_location",
 				description: "Confirm your current location",
-				hint: 'You can use "pwd" to see your current directory path',
+				hint: 'There\'s a command that "prints working directory" - what do you think those initials might be?',
 				completed: false,
 				requiredCommand: "pwd",
 				validator: {
@@ -99,7 +99,7 @@ export const LEVEL1_MISSIONS: Mission[] = [
 			{
 				id: "read_case_file",
 				description: "Read the contents of case_file.txt",
-				hint: 'You can use "cat" to display file contents',
+				hint: "To read a file's contents, try the command that sounds like a pet animal (3 letters).",
 				completed: false,
 				requiredCommand: "cat",
 				validator: {
@@ -229,7 +229,7 @@ Recommendation: Continue monitoring`,
 			{
 				id: "show_hidden_files",
 				description: "Reveal hidden files in the current directory",
-				hint: 'Use "ls -a" to show all files, including those starting with dots',
+				hint: 'Hidden files start with dots. Try adding the "-a" flag to your directory listing command.',
 				completed: false,
 				requiredCommand: "ls",
 				validator: {
@@ -242,24 +242,26 @@ Recommendation: Continue monitoring`,
 			{
 				id: "detailed_listing",
 				description: "Get detailed information about all files",
-				hint: 'Use "ls -la" to show detailed info for all files including hidden ones',
+				hint: 'Combine the "-l" (long format) and "-a" (all files) flags with your listing command.',
 				completed: false,
 				requiredCommand: "ls",
 				validator: {
 					type: "args-output",
 					fn: (args: string, output: string) => {
-						return (
-							args.includes("-l") &&
-							args.includes("-a") &&
-							output.includes("Jan 15")
-						);
+						const hasL =
+							args.includes("-l") || (args.includes("-") && args.includes("l"));
+						const hasA =
+							args.includes("-a") || (args.includes("-") && args.includes("a"));
+						const hasOutputMatch = output.includes("Jan 15");
+
+						return hasL && hasA && hasOutputMatch;
 					},
 				},
 			},
 			{
 				id: "read_hidden_file",
 				description: "Read the contents of the hidden evidence file",
-				hint: 'Use "cat .hidden_evidence" to read the hidden file',
+				hint: "Use the file reading command on the hidden file you discovered (remember, hidden files start with a dot).",
 				completed: false,
 				requiredCommand: "cat",
 				validator: {
@@ -274,7 +276,7 @@ Recommendation: Continue monitoring`,
 			{
 				id: "explore_hidden_directory",
 				description: "Navigate into the hidden backup directory",
-				hint: 'Use "cd .backup" to enter the hidden directory',
+				hint: "Navigate into the hidden backup directory using the change directory command.",
 				completed: false,
 				requiredCommand: "cd",
 				validator: {
@@ -288,7 +290,7 @@ Recommendation: Continue monitoring`,
 				id: "find_recovered_files",
 				description:
 					"List the contents of the backup directory to find recovered files",
-				hint: 'Use "ls" in the backup directory to see what files were recovered',
+				hint: "Once inside the backup directory, list its contents to see what files were recovered.",
 				completed: false,
 				requiredCommand: "ls",
 				validator: {
@@ -447,7 +449,7 @@ and safely backed up in hidden directory.`,
 			{
 				id: "find_by_name",
 				description: "Find all files with 'evidence' in their name",
-				hint: 'Use "find . -name \'*evidence*\'" to search for files containing "evidence"',
+				hint: "The find command can search by filename. Use -name flag with wildcards (*) around your search term.",
 				completed: false,
 				requiredCommand: "find",
 				validator: {
@@ -464,7 +466,7 @@ and safely backed up in hidden directory.`,
 			{
 				id: "find_by_type",
 				description: "Find all text files in the system",
-				hint: "Use \"find . -name '*.txt'\" to find all .txt files",
+				hint: "Use the find command with -name flag to search for files ending in .txt (use * as a wildcard).",
 				completed: false,
 				requiredCommand: "find",
 				validator: {
@@ -481,7 +483,7 @@ and safely backed up in hidden directory.`,
 			{
 				id: "search_content_password",
 				description: "Search for files containing the word 'password'",
-				hint: 'Use "grep -r password ." to search for "password" in all files',
+				hint: "The grep command searches file contents. Use -r flag for recursive search through all files.",
 				completed: false,
 				requiredCommand: "grep",
 				validator: {
@@ -498,7 +500,7 @@ and safely backed up in hidden directory.`,
 			{
 				id: "search_content_case_insensitive",
 				description: "Search for 'CONFIDENTIAL' in any case variation",
-				hint: 'Use "grep -ri confidential ." for case-insensitive search',
+				hint: "Add the -i flag to grep for case-insensitive searching. Combine with -r for recursive search.",
 				completed: false,
 				requiredCommand: "grep",
 				validator: {
@@ -515,7 +517,7 @@ and safely backed up in hidden directory.`,
 			{
 				id: "count_matches",
 				description: "Count how many files contain the word 'suspect'",
-				hint: 'Use "grep -rc suspect ." to count matches in each file',
+				hint: "Combine grep's -r (recursive) and -c (count) flags to count occurrences in each file.",
 				completed: false,
 				requiredCommand: "grep",
 				validator: {
@@ -689,7 +691,7 @@ This transcript is confidential.`,
 			{
 				id: "examine_file_start",
 				description: "Read the first 10 lines of the large log file",
-				hint: 'Use "head server_log.txt" to see the beginning of the file',
+				hint: 'To see the first lines of a file, use the command that\'s the opposite of "tail". Add the filename as an argument.',
 				completed: false,
 				requiredCommand: "head",
 				validator: {
@@ -704,7 +706,7 @@ This transcript is confidential.`,
 			{
 				id: "examine_file_end",
 				description: "Read the last 10 lines to see the most recent entries",
-				hint: 'Use "tail server_log.txt" to see the end of the file',
+				hint: 'To see the last lines of a file, use the command that\'s the opposite of "head". Add the filename as an argument.',
 				completed: false,
 				requiredCommand: "tail",
 				validator: {
@@ -720,7 +722,7 @@ This transcript is confidential.`,
 			{
 				id: "count_file_contents",
 				description: "Count the lines, words, and characters in evidence.txt",
-				hint: 'Use "wc evidence.txt" to get word count statistics',
+				hint: 'The "word count" command (two letters starting with w) gives statistics about file contents.',
 				completed: false,
 				requiredCommand: "wc",
 				validator: {
@@ -733,7 +735,7 @@ This transcript is confidential.`,
 			{
 				id: "identify_file_type",
 				description: "Determine the type of the suspicious_file",
-				hint: 'Use "file suspicious_file" to identify what type of file it is',
+				hint: "There's a command that identifies file types. It's literally called what it does - 4 letters.",
 				completed: false,
 				requiredCommand: "file",
 				validator: {
@@ -748,7 +750,7 @@ This transcript is confidential.`,
 			{
 				id: "examine_specific_lines",
 				description: "Read exactly lines 15-20 of the investigation_notes.txt",
-				hint: 'Use "head -20 investigation_notes.txt | tail -6" to get lines 15-20',
+				hint: 'To get specific lines, pipe the "first 20 lines" command into the "last 6 lines" command using |.',
 				completed: false,
 				requiredCommand: "head",
 				validator: {
@@ -927,7 +929,7 @@ server_log.txt:
 				id: "examine_permissions",
 				description:
 					"List detailed permissions for all files in the security directory",
-				hint: 'Use "ls -l" in the security directory to see file permissions',
+				hint: "Use the long listing format of the directory command to see detailed permissions.",
 				completed: false,
 				requiredCommand: "ls",
 				validator: {
@@ -944,7 +946,7 @@ server_log.txt:
 			{
 				id: "secure_secret_file",
 				description: "Remove world-write permissions from secret.txt",
-				hint: 'Use "chmod 644 secret.txt" to set safe permissions (owner: read/write, others: read only)',
+				hint: 'The "change mode" command can modify permissions. Use 644 for secure file permissions (owner: rw, others: r).',
 				completed: false,
 				requiredCommand: "chmod",
 				validator: {
@@ -957,7 +959,7 @@ server_log.txt:
 			{
 				id: "make_script_executable",
 				description: "Make the security_check.sh script executable",
-				hint: 'Use "chmod +x security_check.sh" to add execute permissions',
+				hint: "Use the change mode command with +x to add execute permissions to the script file.",
 				completed: false,
 				requiredCommand: "chmod",
 				validator: {
@@ -970,7 +972,7 @@ server_log.txt:
 			{
 				id: "verify_changes",
 				description: "Verify that permission changes were applied correctly",
-				hint: 'Use "ls -l" again to confirm the permission changes',
+				hint: "Use the long listing format again to verify your permission changes took effect.",
 				completed: false,
 				requiredCommand: "ls",
 				validator: {
@@ -987,7 +989,7 @@ server_log.txt:
 			{
 				id: "find_unsafe_permissions",
 				description: "Find all files with world-writable permissions",
-				hint: 'Use "find . -perm -002" to find files writable by everyone',
+				hint: "The find command with -perm flag can locate files with specific permissions. Look for -002 (world-writable).",
 				completed: false,
 				requiredCommand: "find",
 				validator: {
@@ -1154,7 +1156,7 @@ RECOMMENDATIONS:
 				id: "create_case_structure",
 				description:
 					"Create a new directory called 'case_2024_004' for organizing evidence",
-				hint: 'Use "mkdir case_2024_004" to create the new case directory',
+				hint: 'The "make directory" command creates new folders. Use it with your desired directory name.',
 				completed: false,
 				requiredCommand: "mkdir",
 				validator: {
@@ -1167,7 +1169,7 @@ RECOMMENDATIONS:
 			{
 				id: "copy_evidence",
 				description: "Copy important_evidence.txt to the new case directory",
-				hint: 'Use "cp important_evidence.txt case_2024_004/" to copy the file',
+				hint: 'The "copy" command duplicates files. Specify source file and destination directory.',
 				completed: false,
 				requiredCommand: "cp",
 				validator: {
@@ -1184,7 +1186,7 @@ RECOMMENDATIONS:
 				id: "rename_file",
 				description:
 					"Rename the copied file to 'primary_evidence.txt' for clarity",
-				hint: 'Use "mv case_2024_004/important_evidence.txt case_2024_004/primary_evidence.txt"',
+				hint: 'The "move" command can rename files. Provide the old path and new path to rename.',
 				completed: false,
 				requiredCommand: "mv",
 				validator: {
@@ -1201,7 +1203,7 @@ RECOMMENDATIONS:
 				id: "create_subdirectories",
 				description:
 					"Create subdirectories 'witnesses', 'forensics', and 'timeline' in the case directory",
-				hint: 'Use "mkdir case_2024_004/witnesses case_2024_004/forensics case_2024_004/timeline"',
+				hint: "Create multiple subdirectories at once by listing all paths after the make directory command.",
 				completed: false,
 				requiredCommand: "mkdir",
 				validator: {
@@ -1219,7 +1221,7 @@ RECOMMENDATIONS:
 				id: "organize_files",
 				description:
 					"Move witness_statement.txt into the witnesses subdirectory",
-				hint: 'Use "mv witness_statement.txt case_2024_004/witnesses/"',
+				hint: "Move the witness statement file into the witnesses subdirectory using the move command.",
 				completed: false,
 				requiredCommand: "mv",
 				validator: {
@@ -1236,7 +1238,7 @@ RECOMMENDATIONS:
 				id: "verify_organization",
 				description:
 					"List the contents of the case directory to verify organization",
-				hint: 'Use "ls -la case_2024_004" to see the organized structure',
+				hint: "List the contents of your case directory with detailed view to verify organization.",
 				completed: false,
 				requiredCommand: "ls",
 				validator: {
@@ -1408,7 +1410,7 @@ NEXT STEPS:
 				id: "list_archive_contents",
 				description:
 					"List the contents of suspicious_archive.tar without extracting",
-				hint: 'Use "tar -tf suspicious_archive.tar" to list contents safely',
+				hint: "The tar command with -t flag lists archive contents without extracting. Add -f for the filename.",
 				completed: false,
 				requiredCommand: "tar",
 				validator: {
@@ -1425,7 +1427,7 @@ NEXT STEPS:
 			{
 				id: "extract_archive",
 				description: "Extract the archive contents to examine the files",
-				hint: 'Use "tar -xf suspicious_archive.tar" to extract the files',
+				hint: "Use tar with -x flag to extract archive contents. Don't forget -f for the filename.",
 				completed: false,
 				requiredCommand: "tar",
 				validator: {
@@ -1440,7 +1442,7 @@ NEXT STEPS:
 			{
 				id: "decompress_gzip",
 				description: "Decompress the encrypted_data.gz file",
-				hint: 'Use "gunzip encrypted_data.gz" to decompress the file',
+				hint: "The gunzip command decompresses .gz files. Simply provide the compressed filename.",
 				completed: false,
 				requiredCommand: "gunzip",
 				validator: {
@@ -1453,7 +1455,7 @@ NEXT STEPS:
 			{
 				id: "create_evidence_archive",
 				description: "Create a new archive with all extracted evidence files",
-				hint: 'Use "tar -cf evidence_collection.tar hidden_data.txt encrypted_data financial_records/"',
+				hint: "Create a new tar archive with -c flag. List all files and directories you want to include.",
 				completed: false,
 				requiredCommand: "tar",
 				validator: {
@@ -1470,7 +1472,7 @@ NEXT STEPS:
 			{
 				id: "compress_evidence",
 				description: "Compress the evidence archive to save storage space",
-				hint: 'Use "gzip evidence_collection.tar" to compress the archive',
+				hint: "The gzip command compresses files. Provide the tar archive filename to compress it.",
 				completed: false,
 				requiredCommand: "gzip",
 				validator: {
@@ -1667,7 +1669,7 @@ Evidence Preservation:
 				id: "list_processes",
 				description:
 					"List all running processes to identify suspicious activity",
-				hint: 'Use "ps aux" to see all processes with detailed information',
+				hint: 'The "process status" command with aux flags shows all running processes with detailed info.',
 				completed: false,
 				requiredCommand: "ps",
 				validator: {
@@ -1685,7 +1687,7 @@ Evidence Preservation:
 				id: "monitor_resources",
 				description:
 					"Check real-time system performance to see resource consumption",
-				hint: 'Use "top" to see live process and resource monitoring (press q to quit)',
+				hint: 'The "top" command shows real-time system performance. It\'s like a live dashboard of processes.',
 				completed: false,
 				requiredCommand: "top",
 				validator: {
@@ -1700,7 +1702,7 @@ Evidence Preservation:
 			{
 				id: "check_disk_space",
 				description: "Check disk space usage across all mounted filesystems",
-				hint: 'Use "df -h" to see disk space in human-readable format',
+				hint: 'The "disk free" command shows filesystem usage. Add -h flag for human-readable sizes.',
 				completed: false,
 				requiredCommand: "df",
 				validator: {
@@ -1717,7 +1719,7 @@ Evidence Preservation:
 			{
 				id: "find_large_files",
 				description: "Find which directories are consuming the most disk space",
-				hint: 'Use "du -sh *" to see directory sizes in the current location',
+				hint: 'The "disk usage" command with -s (summary) and -h (human-readable) shows directory sizes.',
 				completed: false,
 				requiredCommand: "du",
 				validator: {
@@ -1734,7 +1736,7 @@ Evidence Preservation:
 			{
 				id: "investigate_process",
 				description: "Get detailed information about the crypto_miner process",
-				hint: 'Use "ps aux | grep crypto_miner" to filter for specific process',
+				hint: "Combine the process status command with grep (using |) to filter for specific process names.",
 				completed: false,
 				requiredCommand: "ps",
 				validator: {
@@ -1924,7 +1926,7 @@ MANUAL INTERVENTION REQUIRED:
 			{
 				id: "kill_crypto_miner",
 				description: "Terminate the crypto_miner process using its PID",
-				hint: 'Use "kill 1337" to terminate the crypto_miner process (PID 1337)',
+				hint: 'The "kill" command terminates processes by their Process ID (PID). Look for the crypto_miner PID.',
 				completed: false,
 				requiredCommand: "kill",
 				validator: {
@@ -1940,7 +1942,7 @@ MANUAL INTERVENTION REQUIRED:
 			{
 				id: "killall_harvesters",
 				description: "Stop all data_harvester processes at once",
-				hint: 'Use "killall data_harvester" to terminate all instances',
+				hint: 'The "killall" command terminates all processes with a specific name, not just one PID.',
 				completed: false,
 				requiredCommand: "killall",
 				validator: {
@@ -1956,7 +1958,7 @@ MANUAL INTERVENTION REQUIRED:
 			{
 				id: "force_kill_keylogger",
 				description: "Force terminate the stubborn keylogger_daemon process",
-				hint: 'Use "kill -9 3789" to force kill the keylogger (PID 3789)',
+				hint: "For stubborn processes, use kill with -9 flag (force terminate) followed by the PID.",
 				completed: false,
 				requiredCommand: "kill",
 				validator: {
@@ -1973,7 +1975,7 @@ MANUAL INTERVENTION REQUIRED:
 			{
 				id: "locate_malware",
 				description: "Find the location of the crypto_miner executable",
-				hint: 'Use "which crypto_miner" to find where the malware is located',
+				hint: 'The "which" command shows the full path to executable files. Useful for finding malware locations.',
 				completed: false,
 				requiredCommand: "which",
 				validator: {
@@ -1989,7 +1991,7 @@ MANUAL INTERVENTION REQUIRED:
 			{
 				id: "check_command_type",
 				description: "Determine what type of command 'data_harvester' is",
-				hint: 'Use "type data_harvester" to see if it\'s a built-in, alias, or executable',
+				hint: 'The "type" command identifies what kind of command something is - built-in, alias, or file.',
 				completed: false,
 				requiredCommand: "type",
 				validator: {
@@ -2005,7 +2007,7 @@ MANUAL INTERVENTION REQUIRED:
 			{
 				id: "verify_cleanup",
 				description: "Verify that all malicious processes have been terminated",
-				hint: "Use \"ps aux | grep -E '(crypto_miner|data_harvester|keylogger)'\" to check",
+				hint: "Use process status with grep and -E flag for extended regex to search multiple process names at once.",
 				completed: false,
 				requiredCommand: "ps",
 				validator: {
@@ -2213,7 +2215,7 @@ CASE STATUS: Active threats neutralized, cleanup in progress`,
 			{
 				id: "test_connectivity",
 				description: "Test network connectivity to a suspicious server",
-				hint: 'Use "ping -c 4 malicious-server.example.com" to test connectivity',
+				hint: 'The "ping" command tests network connectivity. Use -c flag to limit the number of packets sent.',
 				completed: false,
 				requiredCommand: "ping",
 				validator: {
@@ -2230,7 +2232,7 @@ CASE STATUS: Active threats neutralized, cleanup in progress`,
 			{
 				id: "download_evidence",
 				description: "Download a suspicious file for analysis using wget",
-				hint: 'Use "wget http://evidence-server.local/malware_sample.txt" to download',
+				hint: 'The "wget" command downloads files from web servers. Provide the full URL to download.',
 				completed: false,
 				requiredCommand: "wget",
 				validator: {
@@ -2245,7 +2247,7 @@ CASE STATUS: Active threats neutralized, cleanup in progress`,
 			{
 				id: "test_api_endpoint",
 				description: "Test a suspicious API endpoint using curl",
-				hint: 'Use "curl http://suspicious-api.local/status" to test the endpoint',
+				hint: 'The "curl" command can test web APIs and download content. Provide the URL to test.',
 				completed: false,
 				requiredCommand: "curl",
 				validator: {
@@ -2258,7 +2260,7 @@ CASE STATUS: Active threats neutralized, cleanup in progress`,
 			{
 				id: "check_connections",
 				description: "Examine current network connections and listening ports",
-				hint: 'Use "netstat -tuln" to show TCP/UDP connections and listening ports',
+				hint: 'The "netstat" command shows network connections. Use -tuln flags for TCP/UDP, listening ports.',
 				completed: false,
 				requiredCommand: "netstat",
 				validator: {
@@ -2276,7 +2278,7 @@ CASE STATUS: Active threats neutralized, cleanup in progress`,
 				id: "dns_lookup",
 				description:
 					"Investigate the DNS records for malicious-server.example.com",
-				hint: 'Use "nslookup malicious-server.example.com" to resolve DNS information',
+				hint: 'The "nslookup" command resolves domain names to IP addresses. Great for investigating suspicious domains.',
 				completed: false,
 				requiredCommand: "nslookup",
 				validator: {
@@ -2293,7 +2295,7 @@ CASE STATUS: Active threats neutralized, cleanup in progress`,
 				id: "sync_investigation",
 				description:
 					"Synchronize investigation files to backup server using rsync",
-				hint: 'Use "rsync -av investigation_files/ backup-server:/evidence/"',
+				hint: 'The "rsync" command synchronizes directories. Use -av flags for archive mode and verbose output.',
 				completed: false,
 				requiredCommand: "rsync",
 				validator: {
