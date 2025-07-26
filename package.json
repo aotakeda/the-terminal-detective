@@ -1,0 +1,31 @@
+{
+	"name": "the-terminal-detective",
+	"module": "index.tsx",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"start": "bun run index.tsx",
+		"dev": "bun run index.tsx",
+		"test": "vitest",
+		"test:run": "vitest run",
+		"lint": "biome check .",
+		"lint:fix": "biome check --write ."
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.1.2",
+		"@testing-library/jest-dom": "^6.6.3",
+		"@testing-library/react": "^16.3.0",
+		"@testing-library/user-event": "^14.6.1",
+		"@types/bun": "latest",
+		"happy-dom": "^18.0.1",
+		"vitest": "^3.2.4"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	},
+	"dependencies": {
+		"@types/react": "^19.1.8",
+		"ink": "^6.0.1",
+		"react": "^19.1.0"
+	}
+}

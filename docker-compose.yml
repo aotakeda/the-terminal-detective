@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  terminal-detective:
+    build: .
+    stdin_open: true    # Enable stdin for interactive input
+    tty: true          # Allocate a pseudo-TTY for terminal UI
+    environment:
+      - TERM=xterm-256color          # Enable 256-color terminal support
+      - FORCE_COLOR=1                # Force color output in Docker
+      - PROGRESS_DIR=/app/data       # Directory for persistent progress storage
+    volumes:
+      # Persistent volume for game progress - saves between container restarts
+      # Your completed missions, unlocked levels, and statistics are preserved
+      - terminal-detective-progress:/app/data
+    # Optional: Uncomment to mount local directory instead of Docker volume
+    # volumes:
+    #   - ./progress:/app/data
+
+volumes:
+  # Named volume for persistent game progress
+  # Use 'docker volume rm terminal-detective-progress' to reset progress
+  terminal-detective-progress:
+    driver: local
