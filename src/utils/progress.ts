@@ -16,9 +16,7 @@ export const loadProgress = (): ProgressData => {
 			const data = fs.readFileSync(PROGRESS_FILE, "utf-8");
 			return JSON.parse(data);
 		}
-	} catch (_error) {
-		console.warn("Could not load progress file, starting fresh");
-	}
+	} catch {}
 
 	return {
 		completedMissions: [],
@@ -37,9 +35,7 @@ export const saveProgress = (progress: ProgressData): void => {
 			PROGRESS_FILE,
 			JSON.stringify(progressWithTimestamp, null, 2),
 		);
-	} catch (error) {
-		console.warn("Could not save progress:", error);
-	}
+	} catch {}
 };
 
 export const resetProgress = (): void => {
@@ -47,7 +43,5 @@ export const resetProgress = (): void => {
 		if (fs.existsSync(PROGRESS_FILE)) {
 			fs.unlinkSync(PROGRESS_FILE);
 		}
-	} catch (error) {
-		console.warn("Could not reset progress:", error);
-	}
+	} catch {}
 };

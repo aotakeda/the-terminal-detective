@@ -12,7 +12,6 @@ interface TerminalStreamProps {
 
 export const TerminalStream: React.FC<TerminalStreamProps> = ({
 	lines,
-	speed = 25,
 	onComplete,
 }) => {
 	const [displayedLines, setDisplayedLines] = useState<string[]>([]);
@@ -46,7 +45,7 @@ export const TerminalStream: React.FC<TerminalStreamProps> = ({
 			}
 
 			const currentLine = lines[currentLineIndex];
-			setDisplayedLines(prev => [...prev, currentLine || ""]);
+			setDisplayedLines((prev) => [...prev, currentLine || ""]);
 			currentLineIndex++;
 
 			if (currentLineIndex < lines.length) {
@@ -64,12 +63,17 @@ export const TerminalStream: React.FC<TerminalStreamProps> = ({
 				timeoutRef.current = null;
 			}
 		};
-	}, [lines, speed]);
+	}, [lines]);
 
 	return (
 		<Box marginBottom={1} flexDirection="column">
 			{displayedLines.map((line, index) => (
-				<Text key={index} color="white">{line || " "}</Text>
+				<Text
+					key={`line-${index}-${line?.slice(0, 10) || "empty"}`}
+					color="white"
+				>
+					{line || " "}
+				</Text>
 			))}
 		</Box>
 	);

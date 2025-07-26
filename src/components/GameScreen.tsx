@@ -53,8 +53,6 @@ export const GameScreen: React.FC = () => {
 			if (mission && unlockedMissions.includes(missionId)) {
 				setCurrentMission(mission);
 				setGameMode("mission-play");
-			} else {
-				console.log("Mission not found or not unlocked");
 			}
 		},
 		[unlockedMissions],

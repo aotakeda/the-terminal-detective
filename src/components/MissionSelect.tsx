@@ -181,14 +181,14 @@ export const MissionSelect: React.FC<MissionSelectProps> = ({
 					"All missions:",
 					...missions.map((m, index) => {
 						const missionNumber = index + 1;
-						const status = completedMissions.includes(m.id)
+						const isCompleted = completedMissions.includes(m.id);
+						const status = isCompleted
 							? "[Completed]"
 							: m.unlocked
 								? "[Available]"
 								: "[Locked]";
-						return `${status} ${missionNumber}. ${
-							m.title
-						} - ${getDifficultyStars(m.difficulty)}`;
+						const title = isCompleted ? `̶${m.title}̶` : m.title;
+						return `${status} ${missionNumber}. ${title} - ${getDifficultyStars(m.difficulty)}`;
 					}),
 					"",
 					"Type the mission number to start (e.g., '1' or 'start 1')",
@@ -345,6 +345,7 @@ export const MissionSelect: React.FC<MissionSelectProps> = ({
 													isCompleted ? "green" : isAvailable ? "cyan" : "gray"
 												}
 												bold
+												strikethrough={isCompleted}
 											>
 												{missionNumber}. {mission.title}
 											</Text>

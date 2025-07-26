@@ -152,15 +152,17 @@ export const MissionGame: React.FC<MissionGameProps> = ({
 						"MISSION OBJECTIVES STATUS:",
 						"═".repeat(40),
 					];
-					
+
 					updatedObjectives.forEach((obj, index) => {
 						const status = obj.completed ? "✓" : " ";
 						const color = obj.completed ? "COMPLETED" : "PENDING";
-						objectiveStatusMessage.push(`[${status}] ${index + 1}. ${obj.description} - ${color}`);
+						objectiveStatusMessage.push(
+							`[${status}] ${index + 1}. ${obj.description} - ${color}`,
+						);
 					});
-					
+
 					objectiveStatusMessage.push("═".repeat(40), "");
-					
+
 					setOutput((prev) => [...prev, ...objectiveStatusMessage]);
 				}
 
@@ -176,19 +178,24 @@ export const MissionGame: React.FC<MissionGameProps> = ({
 			setIsStreaming(false);
 			setStreamingContent(null);
 			setOutput((prev) => [...prev, ...contentToAdd]);
-			
+
 			if (streamingCommand) {
 				setTimeout(() => {
 					checkObjectiveCompletion(
 						streamingCommand.command,
 						streamingCommand.args,
-						streamingCommand.outputString
+						streamingCommand.outputString,
 					);
 				}, 100);
 				setStreamingCommand(null);
 			}
 		}
-	}, [streamingContent, isStreaming, streamingCommand, checkObjectiveCompletion]);
+	}, [
+		streamingContent,
+		isStreaming,
+		streamingCommand,
+		checkObjectiveCompletion,
+	]);
 
 	const handleCommand = useCallback(
 		(command: string) => {
@@ -205,13 +212,13 @@ export const MissionGame: React.FC<MissionGameProps> = ({
 					setIsStreaming(false);
 					setOutput((prev) => [...prev, ...streamingContent]);
 					setStreamingContent(null);
-					
+
 					if (streamingCommand) {
 						setTimeout(() => {
 							checkObjectiveCompletion(
 								streamingCommand.command,
 								streamingCommand.args,
-								streamingCommand.outputString
+								streamingCommand.outputString,
 							);
 						}, 100);
 						setStreamingCommand(null);
@@ -261,7 +268,7 @@ export const MissionGame: React.FC<MissionGameProps> = ({
 			const newLines = [...expandedOutput, ""];
 
 			const outputString = result.output.join(" ");
-			
+
 			if (shouldAnimateOutput(cmd)) {
 				setIsStreaming(true);
 				setStreamingContent([...newLines]);
@@ -285,6 +292,7 @@ export const MissionGame: React.FC<MissionGameProps> = ({
 			streamingContent,
 			isStreaming,
 			missionCompleted,
+			streamingCommand,
 		],
 	);
 
