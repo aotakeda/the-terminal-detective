@@ -32,7 +32,7 @@ Learn real-world command-line skills by navigating file systems, analyzing evide
 git clone https://github.com/aotakeda/the-terminal-detective.git
 cd the-terminal-detective
 bun install
-bun run dev
+bun start
 ```
 
 ## How to Play

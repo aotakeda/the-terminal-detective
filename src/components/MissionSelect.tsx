@@ -38,7 +38,7 @@ export const MissionSelect: React.FC<MissionSelectProps> = ({
 	const [output, setOutput] = useState<string[]>([]);
 	const [pendingReset, setPendingReset] = useState(false);
 	const [currentPage, setCurrentPage] = useState(0);
-	const missionsPerPage = 10;
+	const missionsPerPage = 3;
 
 	const totalPages = Math.ceil(missions.length / missionsPerPage);
 	const startIndex = currentPage * missionsPerPage;

@@ -13,8 +13,10 @@ interface TerminalStreamProps {
 export const TerminalStream: React.FC<TerminalStreamProps> = ({
 	lines,
 	onComplete,
+	speed = 30,
 }) => {
 	const [displayedLines, setDisplayedLines] = useState<string[]>([]);
+	const [currentLineText, setCurrentLineText] = useState<string>("");
 	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 	const onCompleteRef = useRef(onComplete);
 
@@ -29,6 +31,7 @@ export const TerminalStream: React.FC<TerminalStreamProps> = ({
 		}
 
 		setDisplayedLines([]);
+		setCurrentLineText("");
 
 		if (lines.length === 0) {
 			onCompleteRef.current?.();
@@ -36,26 +39,35 @@ export const TerminalStream: React.FC<TerminalStreamProps> = ({
 		}
 
 		let currentLineIndex = 0;
-		const delay = 600;
+		let currentCharIndex = 0;
 
-		const showNextLine = () => {
+		const typeNextChar = () => {
 			if (currentLineIndex >= lines.length) {
 				onCompleteRef.current?.();
 				return;
 			}
 
-			const currentLine = lines[currentLineIndex];
-			setDisplayedLines((prev) => [...prev, currentLine || ""]);
-			currentLineIndex++;
+			const currentLine = lines[currentLineIndex] || "";
 
-			if (currentLineIndex < lines.length) {
-				timeoutRef.current = setTimeout(showNextLine, delay);
+			if (currentCharIndex < currentLine.length) {
+				setCurrentLineText(currentLine.slice(0, currentCharIndex + 1));
+				currentCharIndex++;
+				timeoutRef.current = setTimeout(typeNextChar, speed);
 			} else {
-				onCompleteRef.current?.();
+				setDisplayedLines((prev) => [...prev, currentLine]);
+				setCurrentLineText("");
+				currentLineIndex++;
+				currentCharIndex = 0;
+
+				if (currentLineIndex < lines.length) {
+					timeoutRef.current = setTimeout(typeNextChar, 1);
+				} else {
+					onCompleteRef.current?.();
+				}
 			}
 		};
 
-		timeoutRef.current = setTimeout(showNextLine, 50);
+		timeoutRef.current = setTimeout(typeNextChar, 1);
 
 		return () => {
 			if (timeoutRef.current) {
@@ -63,18 +75,20 @@ export const TerminalStream: React.FC<TerminalStreamProps> = ({
 				timeoutRef.current = null;
 			}
 		};
-	}, [lines]);
+	}, [lines, speed]);
 
 	return (
-		<Box marginBottom={1} flexDirection="column">
+		<Box flexDirection="column">
 			{displayedLines.map((line, index) => (
-				<Text
-					key={`line-${index}-${line?.slice(0, 10) || "empty"}`}
-					color="white"
-				>
-					{line || " "}
-				</Text>
+				<Box key={`line-${index}-${line?.slice(0, 10) || "empty"}`} height={1}>
+					<Text color="white">{line || " "}</Text>
+				</Box>
 			))}
+			{currentLineText && (
+				<Box height={1}>
+					<Text color="white">{currentLineText}</Text>
+				</Box>
+			)}
 		</Box>
 	);
 };

@@ -6,6 +6,8 @@ import {
 	handleCharacterInput,
 	handleDownArrow,
 	handleEnter,
+	handleLeftArrow,
+	handleRightArrow,
 	handleTabCompletion,
 	handleUpArrow,
 	inputReducer,
@@ -15,6 +17,7 @@ describe("Terminal Utils", () => {
 	describe("inputReducer", () => {
 		const initialState: InputState = {
 			input: "",
+			cursorPosition: 0,
 			history: [],
 			historyIndex: -1,
 			completions: [],
@@ -111,6 +114,7 @@ describe("Terminal Utils", () => {
 		it("should remove last character", () => {
 			const state: InputState = {
 				input: "hello",
+				cursorPosition: 5,
 				history: [],
 				historyIndex: -1,
 				completions: [],
@@ -120,12 +124,15 @@ describe("Terminal Utils", () => {
 			const action = handleBackspace(state);
 
 			expect(action.type).toBe("SET_INPUT");
-			expect(action.payload).toBe("hell");
+			if (action.type === "SET_INPUT") {
+				expect(action.payload).toBe("hell");
+			}
 		});
 
 		it("should handle empty string", () => {
 			const state: InputState = {
 				input: "",
+				cursorPosition: 0,
 				history: [],
 				historyIndex: -1,
 				completions: [],
@@ -135,7 +142,9 @@ describe("Terminal Utils", () => {
 			const action = handleBackspace(state);
 
 			expect(action.type).toBe("SET_INPUT");
-			expect(action.payload).toBe("");
+			if (action.type === "SET_INPUT") {
+				expect(action.payload).toBe("");
+			}
 		});
 	});
 
@@ -143,6 +152,7 @@ describe("Terminal Utils", () => {
 		it("should add character to input", () => {
 			const state: InputState = {
 				input: "hel",
+				cursorPosition: 3,
 				history: [],
 				historyIndex: -1,
 				completions: [],
@@ -152,12 +162,15 @@ describe("Terminal Utils", () => {
 			const action = handleCharacterInput(state, "l");
 
 			expect(action.type).toBe("SET_INPUT");
-			expect(action.payload).toBe("hell");
+			if (action.type === "SET_INPUT") {
+				expect(action.payload).toBe("hell");
+			}
 		});
 
 		it("should add character to empty input", () => {
 			const state: InputState = {
 				input: "",
+				cursorPosition: 0,
 				history: [],
 				historyIndex: -1,
 				completions: [],
@@ -167,7 +180,9 @@ describe("Terminal Utils", () => {
 			const action = handleCharacterInput(state, "a");
 
 			expect(action.type).toBe("SET_INPUT");
-			expect(action.payload).toBe("a");
+			if (action.type === "SET_INPUT") {
+				expect(action.payload).toBe("a");
+			}
 		});
 	});
 
@@ -175,6 +190,7 @@ describe("Terminal Utils", () => {
 		it("should add non-empty input to history", () => {
 			const state: InputState = {
 				input: "ls -l",
+				cursorPosition: 5,
 				history: [],
 				historyIndex: -1,
 				completions: [],
@@ -184,12 +200,15 @@ describe("Terminal Utils", () => {
 			const action = handleEnter(state);
 
 			expect(action?.type).toBe("ADD_TO_HISTORY");
-			expect(action?.payload).toBe("ls -l");
+			if (action?.type === "ADD_TO_HISTORY") {
+				expect(action.payload).toBe("ls -l");
+			}
 		});
 
 		it("should return null for empty input", () => {
 			const state: InputState = {
 				input: "",
+				cursorPosition: 0,
 				history: [],
 				historyIndex: -1,
 				completions: [],
@@ -204,6 +223,7 @@ describe("Terminal Utils", () => {
 		it("should return null for whitespace-only input", () => {
 			const state: InputState = {
 				input: "   ",
+				cursorPosition: 3,
 				history: [],
 				historyIndex: -1,
 				completions: [],
@@ -220,6 +240,7 @@ describe("Terminal Utils", () => {
 		it("should navigate to previous command", () => {
 			const state: InputState = {
 				input: "",
+				cursorPosition: 0,
 				history: ["ls", "pwd", "cat file.txt"],
 				historyIndex: -1,
 				completions: [],
@@ -229,13 +250,16 @@ describe("Terminal Utils", () => {
 			const action = handleUpArrow(state);
 
 			expect(action?.type).toBe("SET_HISTORY_NAVIGATION");
-			expect(action?.payload.index).toBe(0);
-			expect(action?.payload.input).toBe("cat file.txt");
+			if (action?.type === "SET_HISTORY_NAVIGATION") {
+				expect(action.payload.index).toBe(0);
+				expect(action.payload.input).toBe("cat file.txt");
+			}
 		});
 
 		it("should continue navigating up in history", () => {
 			const state: InputState = {
 				input: "cat file.txt",
+				cursorPosition: 12,
 				history: ["ls", "pwd", "cat file.txt"],
 				historyIndex: 0,
 				completions: [],
@@ -245,13 +269,16 @@ describe("Terminal Utils", () => {
 			const action = handleUpArrow(state);
 
 			expect(action?.type).toBe("SET_HISTORY_NAVIGATION");
-			expect(action?.payload.index).toBe(1);
-			expect(action?.payload.input).toBe("pwd");
+			if (action?.type === "SET_HISTORY_NAVIGATION") {
+				expect(action.payload.index).toBe(1);
+				expect(action.payload.input).toBe("pwd");
+			}
 		});
 
 		it("should return null when at beginning of history", () => {
 			const state: InputState = {
 				input: "ls",
+				cursorPosition: 2,
 				history: ["ls", "pwd", "cat file.txt"],
 				historyIndex: 2,
 				completions: [],
@@ -268,6 +295,7 @@ describe("Terminal Utils", () => {
 		it("should navigate forward in history", () => {
 			const state: InputState = {
 				input: "ls",
+				cursorPosition: 2,
 				history: ["ls", "pwd", "cat file.txt"],
 				historyIndex: 2,
 				completions: [],
@@ -277,13 +305,16 @@ describe("Terminal Utils", () => {
 			const action = handleDownArrow(state);
 
 			expect(action?.type).toBe("SET_HISTORY_NAVIGATION");
-			expect(action?.payload.index).toBe(1);
-			expect(action?.payload.input).toBe("pwd");
+			if (action?.type === "SET_HISTORY_NAVIGATION") {
+				expect(action.payload.index).toBe(1);
+				expect(action.payload.input).toBe("pwd");
+			}
 		});
 
 		it("should clear input when reaching current", () => {
 			const state: InputState = {
 				input: "pwd",
+				cursorPosition: 3,
 				history: ["ls", "pwd", "cat file.txt"],
 				historyIndex: 0,
 				completions: [],
@@ -293,13 +324,16 @@ describe("Terminal Utils", () => {
 			const action = handleDownArrow(state);
 
 			expect(action?.type).toBe("SET_HISTORY_NAVIGATION");
-			expect(action?.payload.index).toBe(-1);
-			expect(action?.payload.input).toBe("");
+			if (action?.type === "SET_HISTORY_NAVIGATION") {
+				expect(action.payload.index).toBe(-1);
+				expect(action.payload.input).toBe("");
+			}
 		});
 
 		it("should return null when already at current", () => {
 			const state: InputState = {
 				input: "",
+				cursorPosition: 0,
 				history: ["ls", "pwd", "cat file.txt"],
 				historyIndex: -1,
 				completions: [],
@@ -322,6 +356,7 @@ describe("Terminal Utils", () => {
 		it("should return null for empty input", () => {
 			const state: InputState = {
 				input: "",
+				cursorPosition: 0,
 				history: [],
 				historyIndex: -1,
 				completions: [],
@@ -336,6 +371,7 @@ describe("Terminal Utils", () => {
 		it("should complete single match directly", () => {
 			const state: InputState = {
 				input: "l",
+				cursorPosition: 1,
 				history: [],
 				historyIndex: -1,
 				completions: [],
@@ -345,12 +381,15 @@ describe("Terminal Utils", () => {
 			const action = handleTabCompletion(state, mockGetCompletions);
 
 			expect(action?.type).toBe("SET_INPUT");
-			expect(action?.payload).toBe("ls ");
+			if (action?.type === "SET_INPUT") {
+				expect(action.payload).toBe("ls ");
+			}
 		});
 
 		it("should set completions for multiple matches", () => {
 			const state: InputState = {
 				input: "c",
+				cursorPosition: 1,
 				history: [],
 				historyIndex: -1,
 				completions: [],
@@ -360,14 +399,17 @@ describe("Terminal Utils", () => {
 			const action = handleTabCompletion(state, mockGetCompletions);
 
 			expect(action?.type).toBe("SET_COMPLETIONS");
-			expect(action?.payload.completions).toEqual(["cat", "cd"]);
-			expect(action?.payload.index).toBe(0);
-			expect(action?.payload.input).toBe("cat ");
+			if (action?.type === "SET_COMPLETIONS") {
+				expect(action.payload.completions).toEqual(["cat", "cd"]);
+				expect(action.payload.index).toBe(0);
+				expect(action.payload.input).toBe("cat ");
+			}
 		});
 
 		it("should cycle through completions", () => {
 			const state: InputState = {
 				input: "cat ",
+				cursorPosition: 4,
 				history: [],
 				historyIndex: -1,
 				completions: ["cat", "cd"],
@@ -377,13 +419,16 @@ describe("Terminal Utils", () => {
 			const action = handleTabCompletion(state, mockGetCompletions);
 
 			expect(action?.type).toBe("SET_COMPLETIONS");
-			expect(action?.payload.index).toBe(1);
-			expect(action?.payload.input).toBe("cd ");
+			if (action?.type === "SET_COMPLETIONS") {
+				expect(action.payload.index).toBe(1);
+				expect(action.payload.input).toBe("cd ");
+			}
 		});
 
 		it("should return null for no completions", () => {
 			const state: InputState = {
 				input: "xyz",
+				cursorPosition: 3,
 				history: [],
 				historyIndex: -1,
 				completions: [],
@@ -416,6 +461,7 @@ describe("Terminal Utils", () => {
 
 			const state: InputState = {
 				input: "t",
+				cursorPosition: 1,
 				history: [],
 				historyIndex: -1,
 				completions: [],
@@ -424,7 +470,241 @@ describe("Terminal Utils", () => {
 
 			const result = handlers.tab(state);
 			expect(result?.type).toBe("SET_INPUT");
-			expect(result?.payload).toBe("test ");
+			if (result?.type === "SET_INPUT") {
+				expect(result.payload).toBe("test ");
+			}
+		});
+	});
+
+	describe("handleLeftArrow", () => {
+		it("should move cursor left when not at beginning", () => {
+			const state: InputState = {
+				input: "hello",
+				cursorPosition: 3,
+				history: [],
+				historyIndex: -1,
+				completions: [],
+				completionIndex: -1,
+			};
+
+			const action = handleLeftArrow(state);
+
+			expect(action?.type).toBe("MOVE_CURSOR");
+			if (action?.type === "MOVE_CURSOR") {
+				expect(action.payload).toBe(2);
+			}
+		});
+
+		it("should return null when cursor at beginning", () => {
+			const state: InputState = {
+				input: "hello",
+				cursorPosition: 0,
+				history: [],
+				historyIndex: -1,
+				completions: [],
+				completionIndex: -1,
+			};
+
+			const action = handleLeftArrow(state);
+
+			expect(action).toBeNull();
+		});
+	});
+
+	describe("handleRightArrow", () => {
+		it("should move cursor right when not at end", () => {
+			const state: InputState = {
+				input: "hello",
+				cursorPosition: 2,
+				history: [],
+				historyIndex: -1,
+				completions: [],
+				completionIndex: -1,
+			};
+
+			const action = handleRightArrow(state);
+
+			expect(action?.type).toBe("MOVE_CURSOR");
+			if (action?.type === "MOVE_CURSOR") {
+				expect(action.payload).toBe(3);
+			}
+		});
+
+		it("should return null when cursor at end", () => {
+			const state: InputState = {
+				input: "hello",
+				cursorPosition: 5,
+				history: [],
+				historyIndex: -1,
+				completions: [],
+				completionIndex: -1,
+			};
+
+			const action = handleRightArrow(state);
+
+			expect(action).toBeNull();
+		});
+	});
+
+	describe("cursor-aware text editing", () => {
+		it("should insert character at cursor position", () => {
+			const state: InputState = {
+				input: "hllo",
+				cursorPosition: 1,
+				history: [],
+				historyIndex: -1,
+				completions: [],
+				completionIndex: -1,
+			};
+
+			const action = handleCharacterInput(state, "e");
+
+			expect(action.type).toBe("SET_INPUT");
+			if (action.type === "SET_INPUT") {
+				expect(action.payload).toBe("hello");
+				expect(action.cursorPosition).toBe(2);
+			}
+		});
+
+		it("should delete character before cursor", () => {
+			const state: InputState = {
+				input: "hello",
+				cursorPosition: 3,
+				history: [],
+				historyIndex: -1,
+				completions: [],
+				completionIndex: -1,
+			};
+
+			const action = handleBackspace(state);
+
+			expect(action.type).toBe("SET_INPUT");
+			if (action.type === "SET_INPUT") {
+				expect(action.payload).toBe("helo");
+				expect(action.cursorPosition).toBe(2);
+			}
+		});
+
+		it("should not delete when cursor at beginning", () => {
+			const state: InputState = {
+				input: "hello",
+				cursorPosition: 0,
+				history: [],
+				historyIndex: -1,
+				completions: [],
+				completionIndex: -1,
+			};
+
+			const action = handleBackspace(state);
+
+			expect(action.type).toBe("SET_INPUT");
+			if (action.type === "SET_INPUT") {
+				expect(action.payload).toBe("hello");
+				expect(action.cursorPosition).toBe(0);
+			}
+		});
+	});
+
+	describe("MOVE_CURSOR action in reducer", () => {
+		it("should update cursor position within bounds", () => {
+			const state: InputState = {
+				input: "hello",
+				cursorPosition: 2,
+				history: [],
+				historyIndex: -1,
+				completions: [],
+				completionIndex: -1,
+			};
+
+			const action: KeyAction = { type: "MOVE_CURSOR", payload: 4 };
+			const result = inputReducer(state, action);
+
+			expect(result.cursorPosition).toBe(4);
+			expect(result.input).toBe("hello"); // input unchanged
+		});
+
+		it("should clamp cursor position to valid range", () => {
+			const state: InputState = {
+				input: "hello",
+				cursorPosition: 2,
+				history: [],
+				historyIndex: -1,
+				completions: [],
+				completionIndex: -1,
+			};
+
+			// Test moving beyond end
+			let action: KeyAction = { type: "MOVE_CURSOR", payload: 10 };
+			let result = inputReducer(state, action);
+			expect(result.cursorPosition).toBe(5);
+
+			// Test moving before start
+			action = { type: "MOVE_CURSOR", payload: -5 };
+			result = inputReducer(state, action);
+			expect(result.cursorPosition).toBe(0);
+		});
+	});
+
+	describe("cursor position with other actions", () => {
+		it("should reset cursor on CLEAR_INPUT", () => {
+			const state: InputState = {
+				input: "hello",
+				cursorPosition: 3,
+				history: [],
+				historyIndex: -1,
+				completions: [],
+				completionIndex: -1,
+			};
+
+			const action: KeyAction = { type: "CLEAR_INPUT" };
+			const result = inputReducer(state, action);
+
+			expect(result.cursorPosition).toBe(0);
+			expect(result.input).toBe("");
+		});
+
+		it("should set cursor to end on history navigation", () => {
+			const state: InputState = {
+				input: "current",
+				cursorPosition: 3,
+				history: ["previous command"],
+				historyIndex: -1,
+				completions: [],
+				completionIndex: -1,
+			};
+
+			const action: KeyAction = {
+				type: "SET_HISTORY_NAVIGATION",
+				payload: { index: 0, input: "previous command" },
+			};
+			const result = inputReducer(state, action);
+
+			expect(result.cursorPosition).toBe(16); // length of "previous command"
+			expect(result.input).toBe("previous command");
+		});
+
+		it("should set cursor to end on tab completion", () => {
+			const state: InputState = {
+				input: "ca",
+				cursorPosition: 1,
+				history: [],
+				historyIndex: -1,
+				completions: [],
+				completionIndex: -1,
+			};
+
+			const action: KeyAction = {
+				type: "SET_COMPLETIONS",
+				payload: {
+					completions: ["cat", "cd"],
+					index: 0,
+					input: "cat ",
+				},
+			};
+			const result = inputReducer(state, action);
+
+			expect(result.cursorPosition).toBe(4); // length of "cat "
+			expect(result.input).toBe("cat ");
 		});
 	});
 });

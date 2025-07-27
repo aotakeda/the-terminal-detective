@@ -48,6 +48,7 @@ export const MissionGame: React.FC<MissionGameProps> = ({
 	]);
 	const [completedObjectives, setCompletedObjectives] = useState<string[]>([]);
 	const [missionCompleted, setMissionCompleted] = useState(false);
+	const maxOutputLines = 20;
 
 	useEffect(() => {
 		setOutput([]);
@@ -145,26 +146,6 @@ export const MissionGame: React.FC<MissionGameProps> = ({
 
 					return objective;
 				});
-
-				if (hasUpdates) {
-					const objectiveStatusMessage = [
-						"",
-						"MISSION OBJECTIVES STATUS:",
-						"═".repeat(40),
-					];
-
-					updatedObjectives.forEach((obj, index) => {
-						const status = obj.completed ? "✓" : " ";
-						const color = obj.completed ? "COMPLETED" : "PENDING";
-						objectiveStatusMessage.push(
-							`[${status}] ${index + 1}. ${obj.description} - ${color}`,
-						);
-					});
-
-					objectiveStatusMessage.push("═".repeat(40), "");
-
-					setOutput((prev) => [...prev, ...objectiveStatusMessage]);
-				}
 
 				return hasUpdates ? updatedObjectives : currentObjectives;
 			});
@@ -327,135 +308,168 @@ export const MissionGame: React.FC<MissionGameProps> = ({
 	]);
 
 	return (
-		<Box flexDirection="column" height="100%">
-			<Box flexDirection="column" flexShrink={0}>
-				<Box
-					flexDirection="column"
-					borderStyle="single"
-					borderColor="cyan"
-					padding={1}
-					marginBottom={1}
-				>
-					<Box justifyContent="center" marginBottom={1}>
-						<Text color="cyan" bold>
-							DETECTIVE TERMINAL - {mission.title.toUpperCase()}
-						</Text>
-					</Box>
-					<Box justifyContent="center" marginBottom={1}>
-						<Text color="white">
-							Difficulty: {getDifficultyStars(mission.difficulty)} (
-							{mission.difficulty}/5)
-						</Text>
-					</Box>
-					{mission.briefing && (
-						<Box flexDirection="column" marginBottom={1}>
-							<Text color="yellow" bold>
-								Mission Brief:
+		<Box flexDirection="column" height="100vh" padding={1}>
+			<Box flexDirection="row" height="85%" marginBottom={1}>
+				<Box flexDirection="column" width="35%" height="100%" marginRight={1}>
+					<Box
+						flexDirection="column"
+						borderStyle="single"
+						borderColor="cyan"
+						padding={1}
+						height="60%"
+						overflow="hidden"
+					>
+						<Box marginBottom={1}>
+							<Text color="cyan" bold>
+								{mission.title.toUpperCase()}
 							</Text>
-							{mission.briefing.story.map((line, index) => (
-								<Text key={`story-${line.slice(0, 20)}-${index}`} color="white">
-									{line}
+							<Box marginLeft={2}>
+								<Text color="white">
+									{getDifficultyStars(mission.difficulty)} ({mission.difficulty}
+									/5)
 								</Text>
-							))}
-							<Box marginTop={1}>
-								<Text color="cyan" bold>
-									Task:{" "}
-								</Text>
-								<Text color="white">{mission.briefing.task}</Text>
 							</Box>
-							<Box marginTop={1}>
-								<Text color="green" bold>
-									Available Commands:{" "}
+						</Box>
+						{mission.briefing && (
+							<Box
+								flexDirection="column"
+								marginBottom={1}
+								flexGrow={1}
+								overflow="hidden"
+							>
+								<Text color="yellow" bold>
+									Mission Brief:
 								</Text>
-								<Text color="white">{mission.allowedCommands.join(", ")}</Text>
-							</Box>
-							{mission.briefing.instructions.length > 0 && (
-								<Box flexDirection="column" marginTop={1}>
-									<Text color="magenta" bold>
-										Instructions:
-									</Text>
-									{mission.briefing.instructions.map((instruction, index) => (
+								<Box flexDirection="column" marginBottom={1}>
+									{mission.briefing.story.map((line, index) => (
 										<Text
-											key={`instruction-${instruction.slice(0, 20)}-${index}`}
+											key={`story-${line.slice(0, 20)}-${index}`}
 											color="white"
 										>
-											• {instruction}
+											{line}
 										</Text>
 									))}
 								</Box>
-							)}
+								<Box marginBottom={1}>
+									<Text color="cyan" bold>
+										Task:{" "}
+									</Text>
+									<Text color="white">{mission.briefing.task}</Text>
+								</Box>
+								<Box marginBottom={1}>
+									<Text color="green" bold>
+										Commands:{" "}
+									</Text>
+									<Text color="white">
+										{mission.allowedCommands.join(", ")}
+									</Text>
+								</Box>
+								{mission.briefing.instructions.length > 0 && (
+									<Box flexDirection="column">
+										<Text color="magenta" bold>
+											Instructions:
+										</Text>
+										{mission.briefing.instructions.map((instruction, index) => (
+											<Text
+												key={`instruction-${instruction.slice(0, 20)}-${index}`}
+												color="white"
+											>
+												• {instruction}
+											</Text>
+										))}
+									</Box>
+								)}
+							</Box>
+						)}
+					</Box>
+
+					<Box
+						flexDirection="column"
+						borderStyle="single"
+						borderColor="green"
+						padding={1}
+						height="40%"
+					>
+						<Box marginBottom={1} flexShrink={0}>
+							<Text color="green" bold>
+								Mission Objectives
+							</Text>
 						</Box>
-					)}
+						<Box flexDirection="column" flexGrow={1} overflow="hidden">
+							{objectives.map((obj, i) => (
+								<Box key={obj.id} paddingBottom={1} flexShrink={0}>
+									<Text
+										color={obj.completed ? "green" : "white"}
+										strikethrough={obj.completed}
+										wrap="wrap"
+									>
+										[{obj.completed ? "✓" : " "}] {i + 1}. {obj.description}
+									</Text>
+								</Box>
+							))}
+						</Box>
+					</Box>
 				</Box>
 
 				<Box
 					flexDirection="column"
+					width="65%"
+					height="100%"
 					borderStyle="single"
-					borderColor="green"
+					borderColor="white"
 					padding={1}
-					marginBottom={1}
+					overflow="hidden"
 				>
-					<Box marginBottom={1}>
-						<Text color="green" bold>
-							Mission Objectives
+					<Box marginBottom={1} flexShrink={0}>
+						<Text color="white" bold>
+							Output
 						</Text>
 					</Box>
-					{objectives.map((obj, i) => (
-						<Box key={obj.id} marginBottom={1}>
-							<Text color={obj.completed ? "green" : "white"}>
-								[{obj.completed ? "✓" : " "}] {i + 1}. {obj.description}
-							</Text>
-						</Box>
-					))}
+
+					<Box flexDirection="column" flexGrow={1} overflow="hidden">
+						{output.slice(-maxOutputLines).map((line, index) => {
+							const { color, bold, strikethrough } = getLineStyle(line);
+							return (
+								<Box
+									key={`output-line-${output.length - maxOutputLines + index}`}
+									flexShrink={0}
+									height={1}
+								>
+									<Text color={color} bold={bold} strikethrough={strikethrough}>
+										{line || " "}
+									</Text>
+								</Box>
+							);
+						})}
+
+						{streamingContent && isStreaming && (
+							<TerminalStream
+								key={streamingContent.join("-")}
+								lines={streamingContent}
+								speed={1}
+								onComplete={handleStreamComplete}
+							/>
+						)}
+					</Box>
+
+					<Box flexShrink={0} marginTop={1}>
+						<Text color="white" dimColor>
+							Tip: Type "skip" to instantly display output
+						</Text>
+					</Box>
 				</Box>
 			</Box>
 
-			<Box
-				flexDirection="column"
-				flexGrow={1}
-				borderStyle="single"
-				borderColor="white"
-				padding={1}
-				marginBottom={1}
-			>
-				<Box marginBottom={1}>
-					<Text color="white" bold>
-						Output
-					</Text>
-				</Box>
-
-				{output.map((line, index) => {
-					const { color, bold, strikethrough } = getLineStyle(line);
-					return (
-						<Box
-							key={`static-output-${line.slice(0, 30)}-${index}`}
-							marginBottom={1}
-						>
-							<Text color={color} bold={bold} strikethrough={strikethrough}>
-								{line}
-							</Text>
-						</Box>
-					);
-				})}
-
-				{streamingContent && isStreaming && (
-					<TerminalStream
-						lines={streamingContent}
-						speed={60}
-						onComplete={handleStreamComplete}
-					/>
-				)}
-
-				<Text color="white" dimColor>
-					Tip: Type "skip" to instantly display output
-				</Text>
+			<Box height="15%" width="100%" flexShrink={0}>
+				<Terminal
+					onCommand={handleCommand}
+					availableCommands={useMemo(
+						() => [...mission.allowedCommands, "hint", "exit", "skip"],
+						[mission.allowedCommands],
+					)}
+					getCompletions={handleCompletions}
+				/>
 			</Box>
-
-			<Terminal
-				onCommand={handleCommand}
-				availableCommands={[...mission.allowedCommands, "hint", "exit", "skip"]}
-				getCompletions={handleCompletions}
-			/>
 		</Box>
 	);
 };

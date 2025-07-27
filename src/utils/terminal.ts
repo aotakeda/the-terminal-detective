@@ -1,5 +1,6 @@
 export interface InputState {
 	readonly input: string;
+	readonly cursorPosition: number;
 	readonly history: string[];
 	readonly historyIndex: number;
 	readonly completions: string[];
@@ -7,12 +8,23 @@ export interface InputState {
 }
 
 export type KeyAction =
-	| { readonly type: "SET_INPUT"; readonly payload: string }
+	| {
+			readonly type: "SET_INPUT";
+			readonly payload: string;
+			readonly cursorPosition?: number;
+	  }
 	| { readonly type: "ADD_TO_HISTORY"; readonly payload: string }
 	| { readonly type: "CLEAR_INPUT" }
-	| { readonly type: "SET_HISTORY_NAVIGATION"; readonly payload: number }
-	| { readonly type: "SET_COMPLETIONS"; readonly payload: string[] }
-	| { readonly type: "CLEAR_COMPLETIONS" };
+	| {
+			readonly type: "SET_HISTORY_NAVIGATION";
+			readonly payload: { index: number; input: string };
+	  }
+	| {
+			readonly type: "SET_COMPLETIONS";
+			readonly payload: { completions: string[]; index: number; input: string };
+	  }
+	| { readonly type: "CLEAR_COMPLETIONS" }
+	| { readonly type: "MOVE_CURSOR"; readonly payload: number };
 
 export const inputReducer = (
 	state: InputState,
@@ -23,6 +35,7 @@ export const inputReducer = (
 			return {
 				...state,
 				input: action.payload,
+				cursorPosition: action.cursorPosition ?? action.payload.length,
 				completions: [],
 				completionIndex: -1,
 			};
@@ -32,6 +45,7 @@ export const inputReducer = (
 				...state,
 				history: [...state.history, action.payload],
 				input: "",
+				cursorPosition: 0,
 				historyIndex: -1,
 				completions: [],
 				completionIndex: -1,
@@ -41,6 +55,7 @@ export const inputReducer = (
 			return {
 				...state,
 				input: "",
+				cursorPosition: 0,
 				historyIndex: -1,
 				completions: [],
 				completionIndex: -1,
@@ -51,6 +66,7 @@ export const inputReducer = (
 				...state,
 				historyIndex: action.payload.index,
 				input: action.payload.input,
+				cursorPosition: action.payload.input.length,
 			};
 
 		case "SET_COMPLETIONS":
@@ -59,6 +75,7 @@ export const inputReducer = (
 				completions: action.payload.completions,
 				completionIndex: action.payload.index,
 				input: action.payload.input,
+				cursorPosition: action.payload.input.length,
 			};
 
 		case "CLEAR_COMPLETIONS":
@@ -68,23 +85,50 @@ export const inputReducer = (
 				completionIndex: -1,
 			};
 
+		case "MOVE_CURSOR":
+			return {
+				...state,
+				cursorPosition: Math.max(
+					0,
+					Math.min(action.payload, state.input.length),
+				),
+			};
+
 		default:
 			return state;
 	}
 };
 
-export const handleBackspace = (state: InputState): KeyAction => ({
-	type: "SET_INPUT",
-	payload: state.input.slice(0, -1),
-});
+export const handleBackspace = (state: InputState): KeyAction => {
+	if (state.cursorPosition === 0)
+		return { type: "SET_INPUT", payload: state.input, cursorPosition: 0 };
+
+	const newInput =
+		state.input.slice(0, state.cursorPosition - 1) +
+		state.input.slice(state.cursorPosition);
+
+	return {
+		type: "SET_INPUT",
+		payload: newInput,
+		cursorPosition: state.cursorPosition - 1,
+	};
+};
 
 export const handleCharacterInput = (
 	state: InputState,
 	char: string,
-): KeyAction => ({
-	type: "SET_INPUT",
-	payload: state.input + char,
-});
+): KeyAction => {
+	const newInput =
+		state.input.slice(0, state.cursorPosition) +
+		char +
+		state.input.slice(state.cursorPosition);
+
+	return {
+		type: "SET_INPUT",
+		payload: newInput,
+		cursorPosition: state.cursorPosition + char.length,
+	};
+};
 
 export const handleEnter = (state: InputState): KeyAction | null => {
 	if (!state.input.trim()) return null;
@@ -172,6 +216,26 @@ export const handleTabCompletion = (
 	}
 };
 
+export const handleLeftArrow = (state: InputState): KeyAction | null => {
+	if (state.cursorPosition > 0) {
+		return {
+			type: "MOVE_CURSOR",
+			payload: state.cursorPosition - 1,
+		};
+	}
+	return null;
+};
+
+export const handleRightArrow = (state: InputState): KeyAction | null => {
+	if (state.cursorPosition < state.input.length) {
+		return {
+			type: "MOVE_CURSOR",
+			payload: state.cursorPosition + 1,
+		};
+	}
+	return null;
+};
+
 export const createKeyHandlers = (
 	getCompletions: (input: string) => string[],
 ) => ({
@@ -181,5 +245,7 @@ export const createKeyHandlers = (
 	enter: handleEnter,
 	upArrow: handleUpArrow,
 	downArrow: handleDownArrow,
+	leftArrow: handleLeftArrow,
+	rightArrow: handleRightArrow,
 	tab: (state: InputState) => handleTabCompletion(state, getCompletions),
 });

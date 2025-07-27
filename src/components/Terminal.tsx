@@ -15,6 +15,7 @@ interface TerminalProps {
 
 const initialInputState: InputState = {
 	input: "",
+	cursorPosition: 0,
 	history: [],
 	historyIndex: -1,
 	completions: [],
@@ -64,6 +65,10 @@ export const Terminal: React.FC<TerminalProps> = ({
 			action = keyHandlers.upArrow(inputState);
 		} else if (key.downArrow) {
 			action = keyHandlers.downArrow(inputState);
+		} else if (key.leftArrow) {
+			action = keyHandlers.leftArrow(inputState);
+		} else if (key.rightArrow) {
+			action = keyHandlers.rightArrow(inputState);
 		} else if (!key.ctrl && !key.meta) {
 			action = keyHandlers.character(inputState, inputChar);
 		}
@@ -79,16 +84,20 @@ export const Terminal: React.FC<TerminalProps> = ({
 			borderStyle="single"
 			borderColor="gray"
 			padding={1}
+			width="100%"
 		>
 			<Box aria-label="Terminal interface">
 				<Text color="green" bold aria-label="Command prompt">
 					${" "}
 				</Text>
 				<Text color="white" aria-label="Current input">
-					{inputState.input}
+					{inputState.input.slice(0, inputState.cursorPosition)}
 				</Text>
 				<Text color="white" bold aria-label="Cursor">
 					{"█"}
+				</Text>
+				<Text color="white" aria-label="Input after cursor">
+					{inputState.input.slice(inputState.cursorPosition)}
 				</Text>
 			</Box>
 			{inputState.completions.length > 1 && (

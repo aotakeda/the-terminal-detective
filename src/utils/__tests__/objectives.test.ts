@@ -169,7 +169,10 @@ describe("Objectives Utils", () => {
 				hint: "Wrong command hint",
 				completed: false,
 				requiredCommand: "grep",
-				validator: () => true,
+				validator: {
+					type: "output",
+					fn: () => true,
+				},
 			};
 
 			expect(validateObjective(objective, "ls", "args", "output")).toBe(false);
