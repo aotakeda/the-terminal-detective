@@ -620,7 +620,7 @@ describe("Terminal Utils", () => {
 			const result = inputReducer(state, action);
 
 			expect(result.cursorPosition).toBe(4);
-			expect(result.input).toBe("hello"); // input unchanged
+			expect(result.input).toBe("hello");
 		});
 
 		it("should clamp cursor position to valid range", () => {
@@ -633,12 +633,10 @@ describe("Terminal Utils", () => {
 				completionIndex: -1,
 			};
 
-			// Test moving beyond end
 			let action: KeyAction = { type: "MOVE_CURSOR", payload: 10 };
 			let result = inputReducer(state, action);
 			expect(result.cursorPosition).toBe(5);
 
-			// Test moving before start
 			action = { type: "MOVE_CURSOR", payload: -5 };
 			result = inputReducer(state, action);
 			expect(result.cursorPosition).toBe(0);
@@ -679,7 +677,7 @@ describe("Terminal Utils", () => {
 			};
 			const result = inputReducer(state, action);
 
-			expect(result.cursorPosition).toBe(16); // length of "previous command"
+			expect(result.cursorPosition).toBe(16);
 			expect(result.input).toBe("previous command");
 		});
 
@@ -703,7 +701,7 @@ describe("Terminal Utils", () => {
 			};
 			const result = inputReducer(state, action);
 
-			expect(result.cursorPosition).toBe(4); // length of "cat "
+			expect(result.cursorPosition).toBe(4);
 			expect(result.input).toBe("cat ");
 		});
 	});

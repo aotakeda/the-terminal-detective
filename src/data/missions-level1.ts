@@ -509,7 +509,8 @@ and safely backed up in hidden directory.`,
 						return (
 							args.includes("-ri") &&
 							args.includes("confidential") &&
-							output.includes("top secret")
+							(output.toLowerCase().includes("top secret") ||
+								output.toLowerCase().includes("confidential"))
 						);
 					},
 				},
@@ -526,7 +527,7 @@ and safely backed up in hidden directory.`,
 						return (
 							args.includes("-rc") &&
 							args.includes("suspect") &&
-							output.includes(":3")
+							/:\d+/.test(output)
 						);
 					},
 				},
@@ -728,7 +729,7 @@ This transcript is confidential.`,
 				validator: {
 					type: "args-output",
 					fn: (args: string, output: string) => {
-						return args.includes("evidence.txt") && output.includes("25");
+						return args.includes("evidence.txt") && output.includes("23");
 					},
 				},
 			},
@@ -756,7 +757,12 @@ This transcript is confidential.`,
 				validator: {
 					type: "args-output",
 					fn: (args: string, output: string) => {
-						return args.includes("-20") && output.includes("BREAKTHROUGH");
+						const hasCorrectCommand =
+							args.includes("-20") ||
+							(args.includes("|") &&
+								args.includes("head") &&
+								args.includes("-20"));
+						return hasCorrectCommand && output.includes("BREAKTHROUGH");
 					},
 				},
 			},

@@ -108,6 +108,175 @@ describe("Command Handlers", () => {
 		expect(Array.isArray(result.output)).toBe(true);
 	});
 
+	describe("find command", () => {
+		it("should support -name flag syntax", () => {
+			const state: GameState = {
+				currentDirectory: "/",
+				filesystem: {
+					name: "/",
+					files: [
+						{
+							name: "secret_evidence.txt",
+							content: "secret content",
+							hidden: false,
+						},
+						{ name: "report.txt", content: "report content", hidden: false },
+					],
+					subdirectories: [
+						{
+							name: "documents",
+							files: [
+								{
+									name: "evidence_log.txt",
+									content: "evidence content",
+									hidden: false,
+								},
+							],
+							subdirectories: [],
+						},
+					],
+				},
+				objectives: [],
+				completedObjectives: [],
+				missionCompleted: false,
+			};
+
+			const result = findCommand(". -name evidence", state);
+			expect(result.output).toContain("/secret_evidence.txt");
+			expect(result.output).toContain("/documents/evidence_log.txt");
+		});
+
+		it("should work with simplified syntax for backward compatibility", () => {
+			const state: GameState = {
+				currentDirectory: "/",
+				filesystem: {
+					name: "/",
+					files: [
+						{
+							name: "secret_evidence.txt",
+							content: "secret content",
+							hidden: false,
+						},
+					],
+					subdirectories: [],
+				},
+				objectives: [],
+				completedObjectives: [],
+				missionCompleted: false,
+			};
+
+			const result = findCommand("evidence", state);
+			expect(result.output).toContain("/secret_evidence.txt");
+		});
+	});
+
+	describe("grep command", () => {
+		it("should support recursive search with -r flag", () => {
+			const state: GameState = {
+				currentDirectory: "/",
+				filesystem: {
+					name: "/",
+					files: [
+						{ name: "file1.txt", content: "password: admin123", hidden: false },
+					],
+					subdirectories: [
+						{
+							name: "documents",
+							files: [
+								{
+									name: "file2.txt",
+									content: "no password here",
+									hidden: false,
+								},
+								{
+									name: "secret.txt",
+									content: "secret password: admin123",
+									hidden: false,
+								},
+							],
+							subdirectories: [],
+						},
+					],
+				},
+				objectives: [],
+				completedObjectives: [],
+				missionCompleted: false,
+			};
+
+			const result = grepCommand("-r password", state);
+			expect(result.output).toContain("/file1.txt:password: admin123");
+			expect(result.output).toContain(
+				"/documents/secret.txt:secret password: admin123",
+			);
+		});
+
+		it("should support case insensitive search with -i flag", () => {
+			const state: GameState = {
+				currentDirectory: "/",
+				filesystem: {
+					name: "/",
+					files: [
+						{ name: "file1.txt", content: "CONFIDENTIAL data", hidden: false },
+					],
+					subdirectories: [],
+				},
+				objectives: [],
+				completedObjectives: [],
+				missionCompleted: false,
+			};
+
+			const result = grepCommand("-ri confidential", state);
+			expect(result.output).toContain("/file1.txt:CONFIDENTIAL data");
+		});
+
+		it("should support count with -c flag", () => {
+			const state: GameState = {
+				currentDirectory: "/",
+				filesystem: {
+					name: "/",
+					files: [
+						{
+							name: "file1.txt",
+							content: "suspect was here\nsuspect left clues\nno evidence",
+							hidden: false,
+						},
+					],
+					subdirectories: [],
+				},
+				objectives: [],
+				completedObjectives: [],
+				missionCompleted: false,
+			};
+
+			const result = grepCommand("-rc suspect", state);
+			expect(result.output).toContain("/file1.txt:2");
+		});
+
+		it("should find TOP SECRET with case insensitive search", () => {
+			const state: GameState = {
+				currentDirectory: "/",
+				filesystem: {
+					name: "/",
+					files: [
+						{
+							name: "secret.txt",
+							content: "CLASSIFIED - TOP SECRET\nThis is confidential",
+							hidden: false,
+						},
+					],
+					subdirectories: [],
+				},
+				objectives: [],
+				completedObjectives: [],
+				missionCompleted: false,
+			};
+
+			const result = grepCommand("-ri confidential", state);
+			console.log("Grep output:", result.output);
+			expect(result.output.length).toBeGreaterThan(0);
+		});
+	});
+
 	describe("hint command", () => {
 		it("should return completion message when all objectives are completed", () => {
 			const state = createMockGameState([

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
 	createBaseCommandRegistry,
 	executeCommand,
+	executePipedCommand,
 	filterCommandRegistry,
 	getCompletions,
 } from "../commands/registry";
@@ -181,12 +182,13 @@ export const MissionGame: React.FC<MissionGameProps> = ({
 	const handleCommand = useCallback(
 		(command: string) => {
 			const trimmedCommand = command.trim();
-			const [cmd, ...argArray] = trimmedCommand.split(" ");
-			const args = argArray.join(" ");
 
-			if (!cmd) return;
+			if (!trimmedCommand) return;
 
 			setOutput((prev) => [...prev, `$ ${command}`]);
+
+			const [cmd, ...argArray] = trimmedCommand.split(" ");
+			const args = argArray.join(" ");
 
 			if (cmd === "skip") {
 				if (streamingContent && isStreaming) {
@@ -223,6 +225,72 @@ export const MissionGame: React.FC<MissionGameProps> = ({
 				const result = executeCommand(cmd, args, gameState, commandRegistry);
 				const newLines = [...result.output, ""];
 				setOutput((prev) => [...prev, ...newLines]);
+				return;
+			}
+
+			const isPipedCommand = trimmedCommand.includes("|");
+
+			if (isPipedCommand) {
+				const pipeCommands = trimmedCommand
+					.split("|")
+					.map((part) => part.trim().split(" ")[0])
+					.filter((cmd): cmd is string => cmd !== undefined);
+				const invalidCommands = pipeCommands.filter(
+					(pipeCmd) =>
+						!mission.allowedCommands.includes(pipeCmd) && pipeCmd !== "hint",
+				);
+
+				if (invalidCommands.length > 0) {
+					const errorMessage = [
+						`Command(s) '${invalidCommands.join(", ")}' not available in this mission.`,
+						`Available commands: ${mission.allowedCommands.join(", ")}, hint, exit`,
+						"",
+					];
+					setOutput((prev) => [...prev, ...errorMessage]);
+					return;
+				}
+
+				const gameState = createGameState();
+				const result = executePipedCommand(
+					trimmedCommand,
+					gameState,
+					commandRegistry,
+				);
+
+				const firstCommand = pipeCommands[0] || "";
+				const outputString = result.output ? result.output.join(" ") : "";
+
+				if (result.error) {
+					const errorOutput = result.output || [
+						"Error executing piped command",
+					];
+					setOutput((prev) => [...prev, ...errorOutput, ""]);
+					return;
+				}
+
+				const expandedOutput = result.output
+					? result.output.flatMap((line) =>
+							typeof line === "string" ? line.split("\n") : [line],
+						)
+					: [];
+				const newLines = [...expandedOutput, ""];
+
+				setOutput((prev) => [...prev, ...newLines]);
+
+				if (firstCommand) {
+					setTimeout(() => {
+						checkObjectiveCompletion(
+							firstCommand,
+							trimmedCommand,
+							outputString,
+						);
+					}, 100);
+				}
+
+				return;
+			}
+
+			if (!cmd) {
 				return;
 			}
 

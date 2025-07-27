@@ -2,7 +2,7 @@ import { Box, Text } from "ink";
 import BigText from "ink-big-text";
 import Gradient from "ink-gradient";
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Mission } from "../types/mission";
 import { resetProgress } from "../utils/progress";
 import { Terminal } from "./Terminal";
@@ -37,8 +37,29 @@ export const MissionSelect: React.FC<MissionSelectProps> = ({
 }) => {
 	const [output, setOutput] = useState<string[]>([]);
 	const [pendingReset, setPendingReset] = useState(false);
-	const [currentPage, setCurrentPage] = useState(0);
 	const missionsPerPage = 3;
+
+	const findFirstIncompletePageIndex = () => {
+		const totalPages = Math.ceil(missions.length / missionsPerPage);
+
+		for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
+			const startIndex = pageIndex * missionsPerPage;
+			const endIndex = Math.min(startIndex + missionsPerPage, missions.length);
+			const pageMissions = missions.slice(startIndex, endIndex);
+
+			const hasIncomplete = pageMissions.some(
+				(mission) => !completedMissions.includes(mission.id),
+			);
+
+			if (hasIncomplete) {
+				return pageIndex;
+			}
+		}
+
+		return totalPages - 1;
+	};
+
+	const [currentPage, setCurrentPage] = useState(findFirstIncompletePageIndex);
 
 	const totalPages = Math.ceil(missions.length / missionsPerPage);
 	const startIndex = currentPage * missionsPerPage;
@@ -48,6 +69,50 @@ export const MissionSelect: React.FC<MissionSelectProps> = ({
 	const completionPercentage = Math.round(
 		(completedMissions.length / missions.length) * 100,
 	);
+
+	useEffect(() => {
+		const totalPages = Math.ceil(missions.length / missionsPerPage);
+
+		for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
+			const startIndex = pageIndex * missionsPerPage;
+			const endIndex = Math.min(startIndex + missionsPerPage, missions.length);
+			const pageMissions = missions.slice(startIndex, endIndex);
+
+			const hasIncomplete = pageMissions.some(
+				(mission) => !completedMissions.includes(mission.id),
+			);
+
+			if (hasIncomplete) {
+				setCurrentPage(pageIndex);
+				return;
+			}
+		}
+
+		setCurrentPage(totalPages - 1);
+	}, [completedMissions, missions]);
+
+	useEffect(() => {
+		if (completedMissions.length === missions.length && missions.length > 0) {
+			const timer = setTimeout(() => {
+				setOutput((prev) => [
+					...prev,
+					"",
+					"CONGRATULATIONS!",
+					"",
+					"You have completed ALL missions! I hope you enjoyed it!",
+					"I try to add new missions every week, so try to pull the latest version here and there!",
+					"",
+					"Thank you for playing The Terminal Detective!",
+					"Feel free to replay any mission or explore the commands you've learned.",
+					"",
+					"Commands: list | reset | exit",
+					"",
+				]);
+			}, 1000);
+
+			return () => clearTimeout(timer);
+		}
+	}, [completedMissions.length, missions.length]);
 
 	const getLineStyle = (line: string) => {
 		let color = "white";
@@ -263,7 +328,7 @@ export const MissionSelect: React.FC<MissionSelectProps> = ({
 
 			case "exit":
 				process.exit(0);
-				break;
+				return;
 
 			default:
 				setOutput((prev) => [
