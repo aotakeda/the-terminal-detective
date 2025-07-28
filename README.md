@@ -9,6 +9,10 @@
 
 Learn real-world command-line skills by navigating file systems, analyzing evidence, hunting for clues, and solving puzzles.
 
+<video controls width="100%">
+  <source src="demo.mov" type="video/mp4">
+</video>
+
 ## Game Features
 
 ### **Mission-Based Learning**
